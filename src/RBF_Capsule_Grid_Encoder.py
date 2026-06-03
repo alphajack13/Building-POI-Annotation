@@ -15,7 +15,6 @@ class RBF_Capsule_Grid_Encoder(nn.Module):
         train_point_embeddings: torch.Tensor,
         grid_size_per_row: int,
         square_size_m: float,
-        sigma_m: Optional[float] = None,
         coord_order: str = "latlon",
         normalize_weights: bool = True,
         eps: float = 1e-8,
@@ -59,17 +58,11 @@ class RBF_Capsule_Grid_Encoder(nn.Module):
             "padding_embedding",
             torch.zeros(dim, dtype=train_point_embeddings.dtype)
         )
-
-
         if self.grid_size_per_row == 1:
             grid_step = self.square_size_m
         else:
             grid_step = self.square_size_m / (self.grid_size_per_row - 1)
-
         self.grid_step = grid_step
-        self.sigma_m = float(sigma_m) if sigma_m is not None else float(grid_step)
-
-
         grid_points = self._create_grid_points(
             grid_size_per_row=self.grid_size_per_row,
             square_size_m=self.square_size_m,
@@ -220,7 +213,7 @@ class RBF_Capsule_Grid_Encoder(nn.Module):
 
 
 
-        weights = torch.exp(-(dists ** 2) / (2.0 * (self.sigma_m ** 2)))
+        weights = torch.exp(-dists ** 2)
         weights = weights * mask_bool.unsqueeze(-1).to(weights.dtype)
 
 

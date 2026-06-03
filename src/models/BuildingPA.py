@@ -135,7 +135,6 @@ class BuildingPA(nn.Module):
             train_point_embeddings=train_point_embeddings,
             grid_size_per_row=10,
             square_size_m=200.0,
-            sigma_m=10,
             coord_order="latlon",
         )
         self.building_polygon_poi_fusion = TargetGuidedGridTokenFusionLayer(
