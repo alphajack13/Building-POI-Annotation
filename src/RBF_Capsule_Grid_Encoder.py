@@ -213,7 +213,7 @@ class RBF_Capsule_Grid_Encoder(nn.Module):
 
 
 
-        weights = torch.exp(-dists ** 2)
+        weights = torch.exp(-dists ** 2 / (2 * 10**2))
         weights = weights * mask_bool.unsqueeze(-1).to(weights.dtype)
 
 
