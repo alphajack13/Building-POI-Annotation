@@ -1,5 +1,4 @@
-﻿import csv
-import gc
+﻿import gc
 import json
 import os
 import random
@@ -190,23 +189,15 @@ def training(args):
             global_iter += 1
 
         scheduler.step()
-        test(test_loader, model, args.device, epoch, args.base_result_outdir, args.l, args.task)
+        test(test_loader, model, args.device, epoch)
 
 
-def test(test_loader, model, device, epoch, base_result_outdir, l, task):
+def test(test_loader, model, device, epoch):
     model.eval()
     _set_buildingpa_epoch(model, epoch)
-    os.makedirs(base_result_outdir, exist_ok=True)
-    with open(os.path.join(base_result_outdir, "result_ARL_cache.csv"), "a", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerow(("l", "epoch", "Accuracy", "F1-score", "MRR", task))
 
     pred_list = []
     label_list = []
-    llm_only_pred_list = []
-    spa_only_pred_list = []
-    llm_weight_list = []
-    spa_weight_list = []
 
     with torch.no_grad():
         for batch in tqdm(test_loader, leave=True):
@@ -223,11 +214,6 @@ def test(test_loader, model, device, epoch, base_result_outdir, l, task):
             )
             pred_list.extend(outputs[1].cpu().numpy())
             label_list.extend(batch["poi_type"].cpu().numpy())
-            extra_info = outputs[3]
-            llm_only_pred_list.extend(extra_info["out_llm"].cpu().numpy())
-            spa_only_pred_list.extend(extra_info["out_spa"].cpu().numpy())
-            llm_weight_list.append(float(extra_info["llm_weight"]))
-            spa_weight_list.append(float(extra_info["spa_weight"]))
 
     y_testlabel = np.array(label_list)
     predictions_test = np.array(pred_list)
@@ -236,9 +222,12 @@ def test(test_loader, model, device, epoch, base_result_outdir, l, task):
     f1_score_test = f1_score(y_testlabel, predictions_test_dim, average="macro")
     mrr_test = compute_mrr(y_testlabel, predictions_test)
 
-    with open(os.path.join(base_result_outdir, "result_ARL_cache.csv"), "a", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerow([l, epoch, accuracy_score_test, f1_score_test, mrr_test])
+    print(
+        f"Test epoch {epoch}: "
+        f"Accuracy={accuracy_score_test:.6f}, "
+        f"F1-score={f1_score_test:.6f}, "
+        f"MRR={mrr_test:.6f}"
+    )
 
 
 def compute_mrr(true_labels, machine_preds):
@@ -299,7 +288,6 @@ class Config:
         self.building_data_path = f"{dataset_dir}/buildings_filtered.json"
         self.llm_path = f"{self.project_root}/src/llm/Qwen3-1.7B"
         self.pretrained_llm_fusion_path = f"{self.project_root}/model_save_path/{id_dataset}/model_weight.pth"
-        self.base_result_outdir = f"{self.project_root}/result/resulttxt/{id_dataset}/"
         self.base_result_image_outdir = f"{self.project_root}/result/image/{id_dataset}/"
 
 
