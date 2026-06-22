@@ -164,7 +164,6 @@ class BuildingPA(nn.Module):
         self.llm_projector = nn.Sequential(
             nn.Linear(llm_dmodel, llm_dmodel),
             nn.Dropout(p=0.3),
-            nn.ELU(),
         )
 
     def set_current_epoch(self, epoch):
