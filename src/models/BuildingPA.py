@@ -161,6 +161,11 @@ class BuildingPA(nn.Module):
             num_classes=num_classes,
             dropout=0.5,
         )
+        self.llm_projector = nn.Sequential(
+            nn.Linear(llm_dmodel, llm_dmodel),
+            nn.Dropout(p=0.3),
+            nn.ELU(),
+        )
 
     def set_current_epoch(self, epoch):
         self.current_epoch = int(epoch)
@@ -208,7 +213,7 @@ class BuildingPA(nn.Module):
         )
         if z_llm.dim() == 1:
             z_llm = z_llm.unsqueeze(0)
-
+        z_llm = self.llm_projector(z_llm)
         if self.current_epoch > self.arl_start_epoch:
             z_llm = GradScale.apply(z_llm, torch.tensor(self.llm_weight, device=z_llm.device))
             z_spa = GradScale.apply(z_spa, torch.tensor(self.spa_weight, device=z_spa.device))
