@@ -264,7 +264,7 @@ class Config:
         src_dir = os.path.dirname(os.path.realpath(__file__)).replace("\\", "/")
         self.project_root = os.path.dirname(src_dir).replace("\\", "/")
         self.id_dataset = id_dataset
-        self.epoch = 13
+        self.epoch = 15
         self.batch_size = 64
         self.lr = 0.0001
         self.num_workers = 0
