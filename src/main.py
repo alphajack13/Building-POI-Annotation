@@ -291,7 +291,7 @@ class Config:
         self.base_result_image_outdir = f"{self.project_root}/result/image/{id_dataset}/"
 
 
-def seed_torch(seed=22):
+def seed_torch(seed=123):
     random.seed(seed)
     os.environ["PYTHONHASHSEED"] = str(seed)
     np.random.seed(seed)
